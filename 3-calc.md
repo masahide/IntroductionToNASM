@@ -226,8 +226,6 @@ output:
 Breakpoint 1 at 0x8049000: file your_program.asm, line 11.
 ```
 
-Breakpoint 1, _start () at your_program.asm:11
-11          mov al, [DATA1] ; DATA1の内容をalレジスタにロード
 このコマンドは、_startラベル（プログラムの開始点）にブレークポイントを設定します。
 
 5. プログラムの実行
@@ -240,6 +238,9 @@ input:
 output:
 ```
 Starting program: /home/masahide/nasm/your_program
+
+Breakpoint 1, _start () at your_program.asm:11
+11          mov al, [DATA1] ; DATA1の内容をalレジスタにロード
 ```
 
 6. ステップ実行
