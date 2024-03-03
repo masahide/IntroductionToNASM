@@ -135,3 +135,166 @@ _start:
 - 最後に、加算結果をANSに格納するには、もう一度mov命令を使用して結果をメモリに書き戻します。
 
 この穴埋め問題を解くことで、NASMにおける基本的なデータの加算と、結果の格納方法について学ぶことができます。
+
+
+
+
+# 3-4.フラグ
+
+フラグはCPUが各種計算や操作を行った後の状態を示すために用いられるビットです。これらはフラグレジスタ内で管理され、主にプログラムの流れを制御するために使われます。ここでは、初心者にもわかりやすいように、基本的なフラグの種類とその用途を簡単に説明します。
+
+- CF（キャリーフラグ）: 加算で繰り上がりが発生したり、減算で桁借りが発生したりしたときにセットされます。「1」は発生したことを、「0」は発生しなかったことを意味します。エラーの有無を示す際にも使用されます。
+
+- PF（パリティーフラグ）: 演算結果の最下位バイトに含まれる「1」の数が偶数の場合に「1」に、奇数の場合には「0」になります。一般的なプログラムではあまり使用されません。
+
+- AF（補助キャリーフラグ）: 主にBCD（バイナリ符号化十進数）演算において使用されます。ここでは詳細な説明は省略します。
+
+- ZF（ゼロフラグ）: 演算結果が0の場合に「1」に、0以外の場合には「0」になります。このフラグは条件分岐で頻繁に使用されます。
+
+- SF（サインフラグ）: 演算結果が負の数（最上位ビットが「1」）である場合に「1」に、正の数（最上位ビットが「0」）の場合には「0」になります。
+
+- IF（割り込み許可フラグ）: ハードウェア割り込みを許可するかどうかを制御します。「1」で許可し、「0」で禁止します。
+
+- DF（ディレクションフラグ）: メモリの連続したデータを扱う命令（ストリング命令）で、データの処理方向を制御します。
+
+- OF（オーバーフローフラグ）: 符号付き数値演算で結果がその数値の範囲を超えた場合に「1」になります。これは、計算結果が想定外に大きいか小さいかを示します。
+
+これらのフラグは、プログラム内で条件分岐を行う際に重要な役割を果たします。例えば、ある条件下でのみ特定のコードを実行したい場合、フラグの状態をチェックしてその条件を満たしているかを判断します。プログラミングにおいて、これらのフラグを理解し、適切に使用することは、効率的で信頼性の高いコードを書く上で欠かせません。
+
+
+
+# デバッガ を使って3.3練習問題の解答をフラグとALレジスタの変化をあわせて見てみる
+
+デバッガーを使用してアセンブリ言語のコードをステップ実行し、レジスタの状態を確認する手順は、使用するデバッガーによって異なります。ここでは、一般的なLinux環境でよく使用されるGDB（GNU Debugger）を例に手順を説明します。
+
+
+1. デバッガ(gdb)のインストール
+```bash
+sudo apt install gdb
+```
+
+2. コードのコンパイル
+まず、デバッグ情報を含む実行可能ファイルを作成するために、アセンブリコードをコンパイルします。以下のコマンドは、NASMを使用してアセンブリ言語のプログラムをコンパイルし、その後ldを使ってリンクする一連の手順です。
+
+```bash
+nasm -f elf32 -g -F dwarf your_program.asm
+ld -m elf_i386 -o your_program your_program.o
+```
+ここで、-gオプションはGDBで使用するデバッグ情報を生成するために必要です。-F dwarfオプションはデバッグ情報のフォーマットを指定します。
+
+2. GDBでのプログラムの起動
+次に、GDBを使用してプログラムを起動します。
+
+
+input:
+```
+gdb ./your_program
+```
+
+output:
+```
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04.1) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./your_program...
+```
+
+
+
+3. ブレークポイントの設定
+プログラムの実行を開始する前に、ブレークポイントを設定してプログラムの実行を一時停止します。これにより、特定の行や条件でプログラムの実行を止めて、レジスタの状態などを確認できます。
+
+input:
+```
+(gdb) break _start
+```
+
+output:
+```
+Breakpoint 1 at 0x8049000: file your_program.asm, line 11.
+```
+
+Breakpoint 1, _start () at your_program.asm:11
+11          mov al, [DATA1] ; DATA1の内容をalレジスタにロード
+このコマンドは、_startラベル（プログラムの開始点）にブレークポイントを設定します。
+
+4. プログラムの実行
+ブレークポイントを設定したら、プログラムの実行を開始します。
+
+input:
+```
+(gdb) run
+```
+output:
+```
+Starting program: /home/masahide/nasm/your_program
+```
+
+5. ステップ実行
+プログラムがブレークポイントで停止したら、ステップ実行を行いながらレジスタの状態を確認します。
+
+input:
+```
+(gdb) stepi
+```
+output:
+```
+12          mov bl, [DATA2] ; DATA3の内容をblレジスタにロード
+```
+または、より短いsiコマンドを使用します。このコマンドは、プログラムを1命令ずつ実行します。
+
+6. レジスタの状態の確認
+現在のレジスタの状態を確認するには、以下のコマンドを使用します。
+
+input:
+```
+(gdb) info registers
+```
+
+これにより、すべてのレジスタの現在の値が表示されます。
+output:
+```
+(gdb) info registers
+eax            0xff                255
+ecx            0x0                 0
+edx            0x0                 0
+ebx            0x0                 0
+esp            0xffffcc00          0xffffcc00
+ebp            0x0                 0x0
+esi            0x0                 0
+edi            0x0                 0
+eip            0x8049005           0x8049005 <_start+5>
+eflags         0x202               [ IF ]
+cs             0x23                35
+ss             0x2b                43
+ds             0x2b                43
+es             0x2b                43
+fs             0x0                 0
+gs             0x0                 0
+```
+
+7. プログラムの続行と終了
+プログラムを終了するまでステップ実行を続けたい場合は、stepiコマンドを繰り返し使用します。プログラムの実行を続けるには、以下のコマンドを使用します。
+
+```
+(gdb) continue
+```
+プログラムの実行が完了したら、GDBを終了します。
+
+```
+(gdb) quit
+```
+以上が、GDBを使用してアセンブリ言語のプログラムをステップ実行し、レジスタの状態を確認する基本的な手順です。デバッガーを使うことで、プログラムの動作を詳細に理解し、バグを特定するのに役立ちます。
+
