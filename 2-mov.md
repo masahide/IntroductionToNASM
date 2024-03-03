@@ -84,11 +84,11 @@ len equ $ - msg        ; メッセージの長さを計算
 1. プログラムをテキストエディタで書き、example.asmというファイル名で保存します。
 2. NASMを使用してアセンブルします。
 ```bash
-nasm -f elf example.asm
+nasm -f elf64 example.asm
 ```
 3. ldを使用してリンクします。
 ```bash
-ld -m elf_i386 -s -o example example.o
+ld -o example example.o
 ```
 4. 実行します。
 ```bash
