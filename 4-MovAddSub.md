@@ -4,8 +4,7 @@
 ```asm
 section .data
     msg db 'Result: ', 0   ; 結果を表示するためのメッセージプレフィックス
-    num db '0', 0          ; 計算結果を格納するためのバッファ（初期値'0'）
-    newline db 0xA, 0      ; 改行文字
+    resultTemplate db '0', 0xA, 0  ; 計算結果と改行を含むテンプレート
 
 section .text
     global _start
@@ -19,28 +18,25 @@ _start:
     add rax, rbx           ; RAX += RBX (5 + 3)
     sub rax, 2             ; RAX -= 2 (8 - 2)
 
-    ; 計算結果をASCII文字に変換してnumに格納
-    add rax, '0'           ; RAXの値をASCIIコードに変換
-    mov [num], al          ; numバッファに格納
+    ; 計算結果をASCII文字に変換してresultTemplateに格納
+    add rax, '0'           ; 計算結果をASCIIに変換
+    mov [resultTemplate], al  ; resultTemplateに格納
 
-    ; 結果メッセージの表示
+    ; 結果メッセージのプレフィックスを表示
     mov rax, 1             ; sys_write
     mov rdi, 1             ; 標準出力
     mov rsi, msg           ; メッセージプレフィックスのアドレス
-    mov rdx, 8             ; メッセージプレフィックスの長さ
+    mov rdx, 9             ; メッセージプレフィックスの長さ
     syscall                ; システムコールを実行
 
-    ; 計算結果の表示
-    mov rsi, num           ; 計算結果のアドレス
-    mov rdx, 2             ; 計算結果の長さ（'6' + null終端）
+    ; 計算結果を表示
+    mov rax, 1             ; sys_write
+    mov rdi, 1             ; 標準出力
+    mov rsi, resultTemplate ; 計算結果のアドレス
+    mov rdx, 3             ; 計算結果文字列の長さ（数字 + 改行 + null終端）
     syscall                ; システムコールを実行
 
-    ; 改行の表示
-    mov rsi, newline       ; 改行文字のアドレス
-    mov rdx, 1             ; 改行文字の長さ
-    syscall                ; システムコールを実行
-
-    ; プログラムの終了
+    ; プログラムを終了
     mov rax, 60            ; sys_exit
     xor rdi, rdi           ; 終了ステータス0
     syscall                ; システムコールを実行
