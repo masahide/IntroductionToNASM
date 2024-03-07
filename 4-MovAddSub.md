@@ -4,7 +4,9 @@
 ```asm
 section .data
     msg db 'Result: ', 0   ; 結果を表示するためのメッセージプレフィックス
+    msgLen equ $ - msg     ; メッセージプレフィックスの長さ
     resultTemplate db '0', 0xA, 0  ; 計算結果と改行を含むテンプレート
+    resultTemplateLen equ $ - resultTemplate ; 計算結果文字列の長さ
 
 section .text
     global _start
@@ -26,14 +28,14 @@ _start:
     mov rax, 1             ; sys_write
     mov rdi, 1             ; 標準出力
     mov rsi, msg           ; メッセージプレフィックスのアドレス
-    mov rdx, 9             ; メッセージプレフィックスの長さ
+    mov rdx, msgLen        ; メッセージプレフィックスの長さ
     syscall                ; システムコールを実行
 
     ; 計算結果を表示
     mov rax, 1             ; sys_write
     mov rdi, 1             ; 標準出力
     mov rsi, resultTemplate ; 計算結果のアドレス
-    mov rdx, 3             ; 計算結果文字列の長さ（数字 + 改行 + null終端）
+    mov rdx, resultTemplateLen ; 計算結果文字列の長さ
     syscall                ; システムコールを実行
 
     ; プログラムを終了
