@@ -31,7 +31,6 @@ _start:
     mov rsi, msg           ; メッセージプレフィックスのアドレス
     mov rdx, msgLen        ; メッセージプレフィックスの長さ
     syscall                ; システムコールを実行
-
     ; 計算結果を表示
     mov rax, 1             ; sys_write
     mov rdi, 1             ; 標準出力

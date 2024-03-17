@@ -63,6 +63,7 @@
 
 ## CPU
 
+CPU については、以下のリンク先の記事で詳しく解説していますので、一旦そちらをご覧ください。終わったら、こちらに戻ってきてください。
 https://elite-lane.com/central-processing-unit/
 
 ## メモリ管理
